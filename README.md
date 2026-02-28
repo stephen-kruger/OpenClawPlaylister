@@ -16,6 +16,20 @@ Builds a fresh Spotify playlist of podcast episodes each day, curated by
 user-defined topic keywords. Each topic is searched independently so episodes
 from multiple subjects end up in one convenient playlist.
 
+## Install into OpenClaw
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/stephen-kruger/OpenClawPlaylister/main/install.sh | bash
+```
+
+This clones the skill into `~/.openclaw/workspace/skills/playlister` and restarts the
+OpenClaw gateway. If already installed, it updates to the latest version instead.
+
+Then ask your agent to **"set up my podcast playlist"** to connect your Spotify account.
+See [INSTALL.md](INSTALL.md) for full setup and Spotify configuration details.
+
+---
+
 ## Requirements
 
 - Python 3.8+
