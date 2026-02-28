@@ -12,6 +12,58 @@ description: >
 
 # Podcast Playlist
 
+## Installing into OpenClaw
+
+Skills live in `~/.openclaw/workspace/skills/` (workspace-scoped, highest priority) or
+`~/.openclaw/skills/` (shared across all agents). Either location works; the workspace
+path is recommended so the skill is kept with your personal configuration.
+
+### Option A — Clone directly into the skills directory (recommended)
+
+```bash
+git clone https://github.com/stephen-kruger/OpenClawPlaylister.git \
+  ~/.openclaw/workspace/skills/playlister
+```
+
+### Option B — Copy from a local checkout
+
+```bash
+cp -r /path/to/OpenClawPlaylister ~/.openclaw/workspace/skills/playlister
+```
+
+### Verify the skill is recognised
+
+```bash
+openclaw skills list
+```
+
+`playlister` should appear in the output. If it shows but is not marked **eligible**,
+confirm Python 3.8+ is on the PATH that the OpenClaw gateway uses:
+
+```bash
+openclaw doctor --repair
+```
+
+### Restart the gateway
+
+OpenClaw snapshots skills at startup, so a restart is required after installing:
+
+```bash
+openclaw gateway restart
+```
+
+After the restart, simply ask your agent naturally — for example:
+- *"Set up my podcast playlist"*
+- *"Add machine learning to my podcast topics"*
+- *"Refresh my daily podcasts"*
+
+OpenClaw will match the request to this skill automatically via the description in
+`SKILL.md` and execute the appropriate command.
+
+---
+
+## About
+
 Builds a fresh Spotify playlist of podcast episodes each day, curated by
 user-defined topic keywords. Each topic is searched independently so episodes
 from multiple subjects end up in one convenient playlist.
