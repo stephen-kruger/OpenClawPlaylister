@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Secrets / config (stored in ~/.openclaw/, never in the repo)
+config.json
+*.env
+.env
+
+# IDE
+.idea/
+*.iml
+
