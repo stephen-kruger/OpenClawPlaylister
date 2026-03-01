@@ -147,16 +147,14 @@ def search_episodes(
 
     Args:
         query:   Spotify search query string (field filters and boolean operators supported).
-        limit:   Maximum results to return.
-        sort_by: "relevance" (Spotify default) or "recency" (newest first by release_date).
-                 When "recency", fetches up to 3x results before sorting so the top N
-                 are genuinely the most recent rather than the most relevant.
+        limit:   Maximum results to return (1–50).
+        sort_by: "relevance" (Spotify default) or "recency" (sort returned results by
+                 release_date descending before returning).
     """
-    fetch_limit = int(max(1, min(limit * 3, 50)) if sort_by == "recency" else max(1, min(limit, 50)))
+    fetch_limit = int(max(1, min(limit, 50)))
     result = _get(token, "/search", {
         "q": query,
         "type": "episode",
-        "market": "US",
         "limit": fetch_limit,
     })
     episodes = [ep for ep in result.get("episodes", {}).get("items", []) if ep]
