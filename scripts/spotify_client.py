@@ -127,15 +127,54 @@ def get_current_user(token: str) -> dict:
     return _get(token, "/me")
 
 
-def search_episodes(token: str, query: str, limit: int = 10) -> list[dict]:
-    """Search for podcast episodes matching query. Returns a list of episode objects."""
+def _sort_by_recency(episodes: list[dict]) -> list[dict]:
+    """Sort episodes newest-first using their release_date field."""
+    def _key(ep: dict) -> str:
+        rd = ep.get("release_date", "")
+        prec = ep.get("release_date_precision", "day")
+        if prec == "year" and len(rd) == 4:
+            rd += "-01-01"
+        elif prec == "month" and len(rd) == 7:
+            rd += "-01"
+        return rd  # ISO strings sort correctly lexicographically
+    return sorted(episodes, key=_key, reverse=True)
+
+
+def search_episodes(
+    token: str, query: str, limit: int = 10, sort_by: str = "relevance"
+) -> list[dict]:
+    """Search for podcast episodes matching query.
+
+    Args:
+        query:   Spotify search query string (field filters and boolean operators supported).
+        limit:   Maximum results to return.
+        sort_by: "relevance" (Spotify default) or "recency" (newest first by release_date).
+                 When "recency", fetches up to 3x results before sorting so the top N
+                 are genuinely the most recent rather than the most relevant.
+    """
+    fetch_limit = min(limit * 3, 50) if sort_by == "recency" else min(limit, 50)
     result = _get(token, "/search", {
         "q": query,
         "type": "episode",
         "market": "US",
-        "limit": min(limit, 50),
+        "limit": fetch_limit,
     })
-    return [ep for ep in result.get("episodes", {}).get("items", []) if ep]
+    episodes = [ep for ep in result.get("episodes", {}).get("items", []) if ep]
+    if sort_by == "recency":
+        episodes = _sort_by_recency(episodes)
+    return episodes[:limit]
+
+
+def search_episodes_combined(
+    token: str, topics: list[str], limit: int = 20, sort_by: str = "relevance"
+) -> list[dict]:
+    """Search for episodes matching ANY of the given topics in a single API call.
+
+    Builds a Spotify boolean query: "topic1" OR "topic2" OR "topic3".
+    Useful when you want a single ranked/blended result set rather than per-topic buckets.
+    """
+    query = " OR ".join(f'"{t}"' for t in topics)
+    return search_episodes(token, query, limit=limit, sort_by=sort_by)
 
 
 def get_user_playlists(token: str) -> list[dict]:

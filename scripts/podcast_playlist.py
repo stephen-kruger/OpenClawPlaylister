@@ -27,6 +27,8 @@ _DEFAULTS: dict = {
     "topics": [],
     "episodes_per_topic": 3,
     "playlist_visibility": "public",
+    "search_strategy": "individual",   # "individual" | "combined"
+    "sort_by": "recency",              # "recency" | "relevance"
     "spotify": {"client_id": "", "client_secret": "", "refresh_token": "", "user_id": ""},
 }
 
@@ -146,6 +148,8 @@ def cmd_list_topics(args: argparse.Namespace) -> None:
     print(f"Topics ({len(topics)}): {', '.join(topics) or '(none)'}")
     print(f"Episodes per topic : {cfg['episodes_per_topic']}")
     print(f"Playlist visibility: {cfg['playlist_visibility']}")
+    print(f"Search strategy    : {cfg['search_strategy']}")
+    print(f"Sort by            : {cfg['sort_by']}")
 
 
 def cmd_refresh(args: argparse.Namespace) -> None:
@@ -154,28 +158,47 @@ def cmd_refresh(args: argparse.Namespace) -> None:
         sys.exit("Error: No topics configured. Use 'add-topic' first.")
 
     per_topic = args.max_episodes or cfg["episodes_per_topic"]
+    strategy = args.strategy or cfg["search_strategy"]
+    sort_by = args.sort or cfg["sort_by"]
     token = _token(cfg)
-    user_id = cfg["spotify"]["user_id"]
     today = datetime.now().strftime("%Y-%m-%d")
     playlist_name = f"Daily Podcasts \u2013 {today}"
 
-    print(f"Building '{playlist_name}'...")
+    print(f"Building '{playlist_name}' [strategy={strategy}, sort={sort_by}]...")
     all_eps: list[dict] = []
     seen: set[str] = set()
 
-    for topic in cfg["topics"]:
-        print(f"  Searching: {topic}...", end=" ", flush=True)
-        episodes = sc.search_episodes(token, f"podcast {topic}", limit=per_topic * 2)
-        added = 0
+    if strategy == "combined":
+        # Single API call — all topics ORed together in one query.
+        total_limit = min(per_topic * len(cfg["topics"]), 50)
+        topic_list = ", ".join(cfg["topics"])
+        print(f"  Searching (combined): {topic_list}...", end=" ", flush=True)
+        episodes = sc.search_episodes_combined(token, cfg["topics"],
+                                               limit=total_limit,
+                                               sort_by=sort_by)
         for ep in episodes:
             uri = ep.get("uri")
             if uri and uri not in seen:
                 seen.add(uri)
-                all_eps.append({"topic": topic, "ep": ep})
-                added += 1
-                if added >= per_topic:
-                    break
-        print(f"{added} episode(s) found")
+                all_eps.append({"topic": "combined", "ep": ep})
+        print(f"{len(all_eps)} episode(s) found")
+    else:
+        # Individual strategy — one search per topic, capped at per_topic each.
+        for topic in cfg["topics"]:
+            print(f"  Searching: {topic}...", end=" ", flush=True)
+            episodes = sc.search_episodes(
+                token, f"podcast {topic}", limit=per_topic * 2, sort_by=sort_by
+            )
+            added = 0
+            for ep in episodes:
+                uri = ep.get("uri")
+                if uri and uri not in seen:
+                    seen.add(uri)
+                    all_eps.append({"topic": topic, "ep": ep})
+                    added += 1
+                    if added >= per_topic:
+                        break
+            print(f"{added} episode(s) found")
 
     if not all_eps:
         sys.exit("No episodes found. Try different topics or re-run 'setup'.")
@@ -259,6 +282,10 @@ def main() -> None:
     p = sub.add_parser("refresh", help="Build or refresh today\u2019s playlist")
     p.add_argument("--max-episodes", type=int, metavar="N",
                    help="Override episodes per topic (default from config)")
+    p.add_argument("--strategy", choices=["individual", "combined"],
+                   help="individual: one search per topic; combined: all topics in one OR query")
+    p.add_argument("--sort", choices=["recency", "relevance"],
+                   help="recency: newest episodes first; relevance: Spotify ranking (default)")
     sub.add_parser("status", help="Show configuration and connection status")
 
     args = parser.parse_args()
