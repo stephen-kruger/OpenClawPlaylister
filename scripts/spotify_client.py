@@ -152,7 +152,7 @@ def search_episodes(
                  When "recency", fetches up to 3x results before sorting so the top N
                  are genuinely the most recent rather than the most relevant.
     """
-    fetch_limit = min(limit * 3, 50) if sort_by == "recency" else min(limit, 50)
+    fetch_limit = int(max(1, min(limit * 3, 50)) if sort_by == "recency" else max(1, min(limit, 50)))
     result = _get(token, "/search", {
         "q": query,
         "type": "episode",
