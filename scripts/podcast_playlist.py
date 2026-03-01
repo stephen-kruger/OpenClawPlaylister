@@ -162,9 +162,9 @@ def cmd_refresh(args: argparse.Namespace) -> None:
     sort_by = args.sort or cfg["sort_by"]
     token = _token(cfg)
     today = datetime.now().strftime("%Y-%m-%d")
-    playlist_name = f"Daily Podcasts \u2013 {today}"
+    playlist_name = "Daily Playlister"
 
-    print(f"Building '{playlist_name}' [strategy={strategy}, sort={sort_by}]...")
+    print(f"Refreshing '{playlist_name}' [strategy={strategy}, sort={sort_by}]...")
     all_eps: list[dict] = []
     seen: set[str] = set()
 
@@ -204,7 +204,7 @@ def cmd_refresh(args: argparse.Namespace) -> None:
         sys.exit("No episodes found. Try different topics or re-run 'setup'.")
 
     uris = [x["ep"]["uri"] for x in all_eps]
-    desc = f"Topics: {', '.join(cfg['topics'])}. Generated {today} by podcast-playlist."
+    desc = f"Topics: {', '.join(cfg['topics'])}. Last updated {today} by playlister."
 
     try:
         playlists = sc.get_user_playlists(token)
@@ -244,7 +244,7 @@ def cmd_refresh(args: argparse.Namespace) -> None:
             )
         raise
 
-    print(f"\n\u2713 {len(all_eps)} episode(s) added:")
+    print(f"\n\u2713 {len(all_eps)} episode(s) prepended to '{playlist_name}':")
     for x in all_eps:
         ep = x["ep"]
         show = ep.get("show", {}).get("name", "Unknown Show")
