@@ -85,7 +85,7 @@ def cmd_setup(args: argparse.Namespace) -> None:
 
     auth_url = sc.get_auth_url(client_id)
     print(f"\n1. Open this URL in your browser:\n   {auth_url}")
-    print("2. Authorize the app. You'll be redirected to https://pulse.ae:8888/callback.")
+    print("2. Authorize the app. You'll be redirected to https://pulseanalytics.ae/callback.")
     print("   The page will show a connection error — that's expected.")
     print("   Copy the full URL from the browser address bar.\n")
     redirect = input("3. Paste the full redirect URL here: ").strip()

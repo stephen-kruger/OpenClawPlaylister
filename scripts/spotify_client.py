@@ -11,7 +11,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-REDIRECT_URI = "https://pulse.ae:8888/callback"
+REDIRECT_URI = "https://pulseanalytics.ae/callback"
 SCOPES = "playlist-modify-public playlist-modify-private playlist-read-private"
 _ACCOUNTS = "https://accounts.spotify.com"
 _API = "https://api.spotify.com/v1"

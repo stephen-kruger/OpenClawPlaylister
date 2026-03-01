@@ -88,5 +88,5 @@ Stored at `~/.openclaw/podcast-playlist/config.json`. Key settings:
 | `401 Unauthorized` | Run `setup` to get a fresh token |
 | `403 Forbidden on POST /me/playlists` | Add user's email to app allowlist in Spotify Developer Dashboard → Users Management |
 | `No episodes found` | Try broader topic keywords |
-| `Invalid redirect URI` | Add `https://pulse.ae:8888/callback` to Spotify app Redirect URIs |
+| `Invalid redirect URI` | Add `https://pulseanalytics.ae/callback` to Spotify app Redirect URIs |
 

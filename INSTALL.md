@@ -87,7 +87,7 @@ python podcast_playlist.py <command>
 ## One-Time Setup
 
 1. Go to https://developer.spotify.com/dashboard → **Create app**
-2. Set the Redirect URI to `https://pulse.ae:8888/callback` and save
+2. Set the Redirect URI to `https://pulseanalytics.ae/callback` and save
 3. Copy the **Client ID** and **Client Secret**
 4. Run setup:
    ```bash
@@ -153,5 +153,5 @@ Add to `HEARTBEAT.md` or a cron job to refresh automatically each morning:
 | `Not configured` | Run `setup` first |
 | `No episodes found` | Use broader topic keywords |
 | `401 Unauthorized` | Re-run `setup` to refresh credentials |
-| `Invalid redirect URI` | Add `https://pulse.ae:8888/callback` to Spotify app settings |
+| `Invalid redirect URI` | Add `https://pulseanalytics.ae/callback` to Spotify app settings |
 
